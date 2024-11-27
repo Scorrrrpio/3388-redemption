@@ -5,30 +5,45 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "Camera.h"
 #include "ShaderUtils.h"
 
-float vertices[] = {
-	//  X,     Y,     Z,    R,    G,    B
-	-0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f, 0.5f, 0.5f, 0.5f,
-};
+void generatePlaneMesh(std::vector<float>& verts, std::vector<unsigned int>& indices, float min, float max, float stepsize) {
+	// Create first column
+	float y = 0;
+	for (float x = min; x <= max; x += stepsize) {
+		for (float z = min; z <= max; z += stepsize) {
+			// Coordinates
+			verts.push_back(x);
+			verts.push_back(y);
+			verts.push_back(z);
 
-unsigned int indices[] = {
-	0, 1, 2, 2, 3, 0,  // back
-	4, 5, 6, 6, 7, 4,  // front
-	0, 1, 5, 5, 4, 0,  // bottom
-	2, 3, 7, 7, 6, 2,  // top
-	0, 3, 7, 7, 4, 0,  // left
-	1, 2, 6, 6, 5, 1   // right
-};
+			// Normal
+			verts.push_back(0);
+			verts.push_back(1);
+			verts.push_back(0);
+		}
+	}
+
+	// Generate indices
+	unsigned int n = (max - min) / stepsize + 1;
+	for (unsigned int i = 0; i < n - 1; i++) {
+		for (unsigned int j = 0; j < n - 1; j++) {
+			// Triangle 1
+			indices.push_back(i * n + j);
+			indices.push_back(i * n + j + 1);
+			indices.push_back((i + 1) * n + j + 1);
+
+			// Triangle 2
+			indices.push_back((i + 1) * n + j + 1);
+			indices.push_back((i + 1) * n + j);
+			indices.push_back(i * n + j);
+		}
+	}
+}
+
 
 int main(void) {
 	// SETUP
@@ -63,6 +78,12 @@ int main(void) {
 	glEnable(GL_DEPTH_TEST);
 
 
+	// GENERATE GEOMETRY
+	std::vector<float> verts;
+	std::vector<unsigned int> indices2;
+	generatePlaneMesh(verts, indices2, -5.0f, 5.0f, 1.0f);
+
+
 	// SHADERS
 	GLuint shaderProgram = compileShaders();
 
@@ -77,12 +98,12 @@ int main(void) {
 	// Create VBO
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(float), verts.data(), GL_STATIC_DRAW);
 
 	// Create EBO
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices2.size() * sizeof(unsigned int), indices2.data(), GL_STATIC_DRAW);
 
 	// Attribute pointers
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
@@ -126,8 +147,8 @@ int main(void) {
 		// Clear screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Close on ESC
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		// Close on ESC or Q
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 
 
@@ -177,7 +198,7 @@ int main(void) {
 		glBindVertexArray(vao);
 
 		// Draw
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, 0);
 
 		// Swap buffers
 		glfwSwapBuffers(window);
