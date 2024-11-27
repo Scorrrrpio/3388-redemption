@@ -1,13 +1,30 @@
+# Compiler
 CXX = g++
-LDFLAGS = -lGL -lglfw
 
-exec: main.o
-	$(CXX) -o $@ $^ $(LDFLAGS)
+# Linker flags
+LDFLAGS = -lGL -lglfw -lGLEW
+
+# Directories
+SRCDIR = src
+BUILDDIR = build
+
+# Source files and object files
+SRCS = $(wildcard $(SRCDIR)/*.cpp)
+OBJS = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(SRCS))
+
+# Output executable
+TARGET = exec
+
+# Build target executable
+$(TARGET): $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 
 
-main.o: src/main.cpp
-	$(CXX) -c src/main.cpp
+# Compile source files into object files
+$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
+	mkdir -p $(BUILDDIR)
+	$(CXX) -c $< -o $@
 
-
+# Clean
 clean:
-	rm -f *.o exec
+	rm -rf $(BUILDDIR) $(TARGET)
