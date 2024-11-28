@@ -79,9 +79,10 @@ int main(void) {
 
 
 	// GENERATE GEOMETRY
+	float oceanScale = 5.0f;
 	std::vector<float> verts;
 	std::vector<unsigned int> indices2;
-	generatePlaneMesh(verts, indices2, -5.0f, 5.0f, 1.0f);
+	generatePlaneMesh(verts, indices2, oceanScale * -1, oceanScale, 1.0f);
 
 
 	// SHADERS
@@ -129,11 +130,23 @@ int main(void) {
 	glfwGetCursorPos(window, &lastX, &lastY);
 
 
+	// PHONG
+	glm::vec3 lightPos = {0.0f, 10.0f, 0.0f};
+	glm::vec3 eyePos = camera.getCartesian();
+
+
 	// SHADER SETUP
 	// Activate shader
 	glUseProgram(shaderProgram);
 
+	// Time
+	float time = 0.0f;
+
 	// Uniform locations
+	GLuint eyePosLocation = glGetUniformLocation(shaderProgram, "eyePos");
+	GLuint lightPosLocation = glGetUniformLocation(shaderProgram, "lightPos");
+	GLuint timeLocation = glGetUniformLocation(shaderProgram, "time");
+	GLuint texScaleLocation = glGetUniformLocation(shaderProgram, "texScale");
 	GLuint modelLocation = glGetUniformLocation(shaderProgram, "model");
 	GLuint viewLocation = glGetUniformLocation(shaderProgram, "view");
 	GLuint projLocation = glGetUniformLocation(shaderProgram, "projection");
@@ -190,6 +203,10 @@ int main(void) {
 
 		// RENDER
 		// Update uniform values
+		glUniform1fv(timeLocation, 1, &time);
+		glUniform1fv(texScaleLocation, 1, &oceanScale);
+		glUniform3fv(eyePosLocation, 1, glm::value_ptr(eyePos));
+		glUniform3fv(lightPosLocation, 1, glm::value_ptr(lightPos));
 		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(projection));
@@ -202,6 +219,9 @@ int main(void) {
 
 		// Swap buffers
 		glfwSwapBuffers(window);
+
+		// Increment time
+		time += 0.01;
 	}
 
 

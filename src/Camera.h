@@ -15,6 +15,7 @@ class Camera {
 			: radius(initRadius), theta(initTheta), phi(initPhi) {}
 		void update(float deltaX, float deltaY, float deltaR);
 		glm::mat4 getViewMatrix() const;
+		glm::vec3 getCartesian() const;
 };
 
 #endif

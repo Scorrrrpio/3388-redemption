@@ -32,7 +32,7 @@ void checkShaderCompilation(GLuint shader, std::string type) {
 			std::cerr << "Shader compilation error of type: " << type << "\n" << infolog << std::endl;
 		}
 		else {
-			std::cout << "Shader compilation successful" << std::endl;
+			std::cout << type << " Shader compilation successful" << std::endl;
 		}
 
 	}
@@ -54,8 +54,8 @@ GLuint compileShaders() {
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
 	// Read shader code from files
-	std::string vertexShaderCode = readShaderCode("./shaders/test.vert.glsl");
-	std::string fragmentShaderCode = readShaderCode("./shaders/test.frag.glsl");
+	std::string vertexShaderCode = readShaderCode("./shaders/waves.vert.glsl");
+	std::string fragmentShaderCode = readShaderCode("./shaders/waves.frag.glsl");
 
 	// Compile shaders
 	const char* vertexShaderPtr = vertexShaderCode.c_str();

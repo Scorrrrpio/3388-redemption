@@ -36,3 +36,13 @@ glm::mat4 Camera::getViewMatrix() const {
 
 	return glm::lookAt(eye, centre, up);
 }
+
+glm::vec3 Camera::getCartesian() const {
+	// Convert spherical coordinates to Cartesian
+	float x = radius * std::cos(theta) * std::sin(phi);
+	float y = radius * std::cos(phi);
+	float z = radius * std::sin(theta) * std::sin(phi);
+
+	// Generate view matrix
+	return glm::vec3(x, y, z);
+}
