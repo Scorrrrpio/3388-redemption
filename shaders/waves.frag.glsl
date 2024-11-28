@@ -1,13 +1,13 @@
-#version 330 core
+#version 450 core
 
-in vec3 worldPos;
-in vec3 vertexNormal;
-in vec2 uv;
-in vec3 eyeDirection;
-in vec3 lightDirection;
+in vec3 geoPos;
+in vec3 geoNormal;
+in vec2 geoUv;
+in vec3 geoEyeDir;
+in vec3 geoLightDir;
 
 out vec4 fragColour;
 
 void main() {
-	fragColour = vec4(uv, 0.0, 1.0);
+	fragColour = vec4(geoUv, 0.0, 1.0);
 }

@@ -153,6 +153,7 @@ int main(void) {
 
 
 	// RENDER LOOP
+	glPatchParameteri(GL_PATCH_VERTICES, 3);
 	while (!glfwWindowShouldClose(window)) {
 		// Poll for process events
 		glfwPollEvents();
@@ -215,7 +216,7 @@ int main(void) {
 		glBindVertexArray(vao);
 
 		// Draw
-		glDrawElements(GL_TRIANGLES, indices2.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_PATCHES, indices2.size(), GL_UNSIGNED_INT, 0);
 
 		// Swap buffers
 		glfwSwapBuffers(window);
