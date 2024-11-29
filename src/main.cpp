@@ -8,7 +8,9 @@
 #include <vector>
 
 #include "Camera.h"
+#include "LoadBitmap.h"
 #include "ShaderUtils.h"
+
 
 void generatePlaneMesh(std::vector<float>& verts, std::vector<unsigned int>& indices, float min, float max, float stepsize) {
 	// Create first column
@@ -142,6 +144,18 @@ int main(void) {
 	// Time
 	float time = 0.0f;
 
+	// Load displacement map
+	std::string dmFile = "./assets/displacement-map.bmp";
+	GLuint dmTextureId;
+	unsigned char *dmData;
+	unsigned int dmWidth, dmHeight;
+	loadARGB_BMP(dmFile.c_str(), &dmData, &dmWidth, &dmHeight);
+	glGenTextures(1, &dmTextureId);
+	glBindTexture(GL_TEXTURE_2D, dmTextureId);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dmWidth, dmHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, dmData);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	// Uniform locations
 	GLuint eyePosLocation = glGetUniformLocation(shaderProgram, "eyePos");
 	GLuint lightPosLocation = glGetUniformLocation(shaderProgram, "lightPos");
@@ -150,6 +164,7 @@ int main(void) {
 	GLuint modelLocation = glGetUniformLocation(shaderProgram, "model");
 	GLuint viewLocation = glGetUniformLocation(shaderProgram, "view");
 	GLuint projLocation = glGetUniformLocation(shaderProgram, "projection");
+	GLuint dmLocation = glGetUniformLocation(shaderProgram, "displacementMap");
 
 
 	// RENDER LOOP
@@ -211,6 +226,11 @@ int main(void) {
 		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(projection));
+
+		// Bind displacement map
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, dmTextureId);
+		glUniform1i(dmLocation, 0);
 
 		// Bind vao
 		glBindVertexArray(vao);

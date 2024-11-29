@@ -18,13 +18,18 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+uniform sampler2D displacementMap;
+
 void main() {
 	mat4 MVP = projection * view * model;
 
 	for (int i = 0; i < 3; i++) {
-		vec4 worldPos = MVP * vec4(tesPos[i], 1);
+		// displace along y
+		float displacement = texture(displacementMap, tesUv[i]).r;
+		vec4 worldPos = MVP * vec4(tesPos[i].x, tesPos[i].y + displacement, tesPos[i].z, 1);
+
 		gl_Position = worldPos;
-		geoPos = worldPos.xyz;
+		geoPos = texture(displacementMap, tesUv[i]).rgb;  // TODO debugging
 		geoNormal = tesNormal[i];
 		geoUv = tesUv[i];
 		geoEyeDir = tesEyeDir[i];

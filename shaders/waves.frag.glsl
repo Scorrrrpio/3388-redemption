@@ -9,5 +9,5 @@ in vec3 geoLightDir;
 out vec4 fragColour;
 
 void main() {
-	fragColour = vec4(geoUv, 0.0, 1.0);
+	fragColour = vec4(geoPos, 1.0);
 }
